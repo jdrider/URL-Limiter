@@ -1,0 +1,7 @@
+{
+	"name": "URL Limiter",
+	"version": "1.0",
+	"manifest_version": 2,
+	"description": "Limit the number of times a URL is visited.",
+	"options_page": "options.html"	
+}
