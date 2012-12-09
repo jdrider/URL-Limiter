@@ -1,12 +1,19 @@
+//Page Load event handler
 document.addEventListener('DOMContentLoaded', function () {
   setupPage();
 });
 
+/*
+* Setup the page
+*/
 function setupPage(){
 	loadURLs();
 	addClickHandlers();
 }
 
+/*
+* Add click handlers to the elements that need them.
+*/
 function addClickHandlers(){
 	$("#addURLButton").on("click", 
 		function(event){
@@ -18,13 +25,26 @@ function addClickHandlers(){
 			saveURLs();
 		}
 	);
+	//Add click handlers for Remove buttons
+	$(".removeBtn").on("click",
+		function(event){
+				removeURL($(this).parent());
+		}
+	);
 }
 
+/*
+* Logic to see if the URL needs to be limited.
+*/
 function limit(){
 
 }
 
+/*
+* Add URL fields to the options page.
+*/
 function addURL(){
+	//Break only needs to be there if it is not the first element being added.
 	if($("#urlList").children('div').length != 0){
 		$("#urlList").append('<br/>');
 	}
@@ -35,15 +55,23 @@ function addURL(){
 	                     '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>');
 }
 
+/*
+* Remove a set of URL fields from the options page.
+* 
+* elemenToRemove - The set of URL fields to remove.
+*/
 function removeURL(elementToRemove){
 	elementToRemove.remove();
 	
+	//Remove all extra break elements if all url fields have been removed.
 	if($("#urlList").children('div').length == 0){
 		$("#urlList").empty();
 	}
 }
 
-
+/*
+* Load the saved URLs from localStorage
+*/
 function loadURLs(){
 	var urls = localStorage['urlLimits'];
 	
@@ -69,21 +97,18 @@ function loadURLs(){
 	                                 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>'+
 									 '<button class="removeBtn">Remove</button>');
 			}
-			
-			$(".removeBtn").on("click",
-				function(event){
-					removeURL($(this).parent());
-				}
-			);
-			
 		}
 	}
 }
 
+/*
+* Save URL options to localStorage
+*/
 function saveURLs(){
 
 	var urlList = new Array();
 	
+	//Iterate over all field elements and create limit options.
 	$("#urlList").children('div').each(function(i){
 		var url = $(this).children("#urlInput").val();
 		var limit = $(this).children("#urlLimit").val();
@@ -95,14 +120,19 @@ function saveURLs(){
 		}
 	});
 	
+	//Save to local storage if there are elements to save
 	if(urlList.length > 0){
 		localStorage['urlLimits'] = JSON.stringify(urlList);
 	}
+	//Remove the item if there are no elements to save
 	else if(localStorage['urlLimits'] != undefined){
 		localStorage.removeItem("urlLimits");
 	}
 }
 
+/*
+* Create a URL_Limit object from a comma-separated string of values.
+*/
 function createURL_Limit(valueString){
 	var indValues = valueString.split(",");
 	
