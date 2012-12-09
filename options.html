@@ -5,13 +5,13 @@
 
   <h1>URL Limiter</h1>
 
-  <form action="saveURLS()" name="urlList">
+  <div name="urlList" id="urlList">
     <div>
 		<label id="urlLabel">URL</label>
-		<input type="text" id="urlInput" onchange="addHTTP($(this).val())"/>
+		<input type="text" id="urlInput"/>
 	
 		<label id="numberLabel">Limit</label>
-		<input type="number" id="urlLimit" />
+		<input type="number" id="urlLimit" min="1"/>
 	
 		<select id="timeLimit">
 			<option name="Hourly">Hourly</option>
@@ -19,8 +19,7 @@
 			<option name="Weekly">Weekly</option>
 		</select>
 	</div>
-  
-  </form>
+  </div>
   
   <button onclick="addURL()">Add URL</button>
   <button onclick="saveURLs()">Save</button>
