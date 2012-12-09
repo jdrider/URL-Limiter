@@ -34,13 +34,6 @@ function addClickHandlers(){
 }
 
 /*
-* Logic to see if the URL needs to be limited.
-*/
-function limit(){
-
-}
-
-/*
 * Add URL fields to the options page.
 */
 function addURL(){
