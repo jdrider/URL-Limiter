@@ -3,8 +3,8 @@ function limit(){
 }
 
 function addURL(){
-	$("#urlForm").append('<br/>');
-	$("#urlForm").append('<div><label>URL</label><input type="text" id="urlInput"/>'+
+	$("#urlList").append('<br/>');
+	$("#urlList").append('<div><label>URL</label><input type="text" id="urlInput"/>'+
 						 '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1"/>'+
 	                     '<select id="timeLimit"><option name="Hourly">Hourly</option>'+
 	                     '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>');
