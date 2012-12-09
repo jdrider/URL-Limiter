@@ -1,9 +1,34 @@
+document.addEventListener('DOMContentLoaded', function () {
+  setupPage();
+});
+
+function setupPage(){
+	loadURLs();
+	addClickHandlers();
+}
+
+function addClickHandlers(){
+	$("#addURLButton").on("click", 
+		function(event){
+			addURL();
+		}
+	);
+	$("#saveURLsButton").on("click", 
+		function(event){
+			saveURLs();
+		}
+	);
+}
+
 function limit(){
 
 }
 
 function addURL(){
-	$("#urlList").append('<br/>');
+	if($("#urlList").children('div').length != 0){
+		$("#urlList").append('<br/>');
+	}
+	
 	$("#urlList").append('<div><label>URL</label><input type="text" id="urlInput"/>'+
 						 '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1" value="1"/>'+
 	                     '<select id="timeLimit"><option name="Hourly">Hourly</option>'+
@@ -12,6 +37,10 @@ function addURL(){
 
 function removeURL(elementToRemove){
 	elementToRemove.remove();
+	
+	if($("#urlList").children('div').length == 0){
+		$("#urlList").empty();
+	}
 }
 
 
@@ -24,7 +53,7 @@ function loadURLs(){
 		
 		if(urlList != undefined){
 			
-			$("#urlList").html("");
+			$("#urlList").empty();
 			
 			for(var i = 0; i < urlList.length; i++){
 				
@@ -38,8 +67,14 @@ function loadURLs(){
 						             '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1" value="'+ limitItem.limit +'"/>'+
 	                                 '<select id="timeLimit" value="'+ limitItem.timeLimit +'"><option name="Hourly">Hourly</option>'+
 	                                 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>'+
-									 '<button onclick="removeURL($(this).parent());">Remove</button>');
+									 '<button class="removeBtn">Remove</button>');
 			}
+			
+			$(".removeBtn").on("click",
+				function(event){
+					removeURL($(this).parent());
+				}
+			);
 			
 		}
 	}
@@ -63,10 +98,8 @@ function saveURLs(){
 	if(urlList.length > 0){
 		localStorage['urlLimits'] = JSON.stringify(urlList);
 	}
-	else{
-		if(localStorage['urlLimits'] != undefined){
-			localStorage.removeItem("urlLimits");
-		}
+	else if(localStorage['urlLimits'] != undefined){
+		localStorage.removeItem("urlLimits");
 	}
 }
 
