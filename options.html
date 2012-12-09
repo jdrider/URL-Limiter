@@ -1,8 +1,12 @@
 <html>
   
-  <body onload="loadURLs()">
+  <head>
+    <title>URL Limiter Options</title>
     <script src="options.js" type="text/javascript"></script>
     <script src="jquery-1.8.3.min.js" type="text/javascript"></script>
+  </head>
+  
+  <body>
 
     <h1>URL Limiter</h1>
 
@@ -24,8 +28,8 @@
   
 	<br/>
     <div id="buttons">
-	  <button onclick="addURL()">Add URL</button>
-	  <button onclick="saveURLs()">Save</button>
+	  <button id="addURLButton">Add URL</button>
+	  <button id="saveURLsButton">Save</button>
     </div>
   </body>
 
