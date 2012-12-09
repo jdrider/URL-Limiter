@@ -37,7 +37,9 @@ function saveURLs(){
 	}
 	*/
 	
-	localStorage['urlLimits'] = JSON.stringify(urlList);
+	if(urlList.length > 0){
+		localStorage['urlLimits'] = JSON.stringify(urlList);
+	}
 }
 
 /** URL Limit Object **/
