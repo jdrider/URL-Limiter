@@ -10,10 +10,10 @@ function addURL(){
 	                     '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>');
 }
 
-/*function removeURL(elementToRemove){
-	$("#urlForm").remove(elementToRemove.id);
+function removeURL(elementToRemove){
+	elementToRemove.remove();
 }
-*/
+
 
 function loadURLs(){
 	var urls = localStorage['urlLimits'];
@@ -31,13 +31,16 @@ function loadURLs(){
 				var limitItem = createURL_Limit(urlList[i]);
 				
 				if(i != 0){
-					$("#urlList").append('<br/>');
+						$("#urlList").append('<br/>');
 				}
+				
 				$("#urlList").append('<div><label>URL</label><input type="text" id="urlInput" value="'+ limitItem.url + '"/>'+
 						             '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1" value="'+ limitItem.limit +'"/>'+
 	                                 '<select id="timeLimit" value="'+ limitItem.timeLimit +'"><option name="Hourly">Hourly</option>'+
-	                                 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>');
+	                                 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>'+
+									 '<button onclick="removeURL($(this).parent());">Remove</button>');
 			}
+			
 		}
 	}
 }
@@ -59,6 +62,11 @@ function saveURLs(){
 	
 	if(urlList.length > 0){
 		localStorage['urlLimits'] = JSON.stringify(urlList);
+	}
+	else{
+		if(localStorage['urlLimits'] != undefined){
+			localStorage.removeItem("urlLimits");
+		}
 	}
 }
 
