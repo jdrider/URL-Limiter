@@ -105,7 +105,7 @@ function updateURLHistory(urlLimitValues){
 		urlHistory[urlIndex] = urlHistoryObj;
 	}
 	else{
-		urlHistory[urlHistory.length] =  new URL_History(urlLimitValues[0], new Date(), new Date(), 1);
+		urlHistory.push(new URL_History(urlLimitValues[0], new Date(), new Date(), 1));
 	}
 	
 	localStorage["urlHistory"] = JSON.stringify(urlHistory);
