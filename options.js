@@ -54,11 +54,40 @@ function addURL(){
 * elemenToRemove - The set of URL fields to remove.
 */
 function removeURL(elementToRemove){
+	
+	var url = elementToRemove.children("#urlInput").val();
+	
+	removeURLHistory(url);
+	
 	elementToRemove.remove();
 	
 	//Remove all extra break elements if all url fields have been removed.
 	if($("#urlList").children('div').length == 0){
 		$("#urlList").empty();
+	}
+}
+
+function removeURLHistory(url)
+{
+	var localHistory = localStorage["urlHistory"];
+	
+	if(localHistory != undefined)
+	{
+		var oldUrlHistory = JSON.parse(localHistory);
+		
+		var newURLHistory = new Array();
+		
+		for(var i=0; i < oldUrlHistory.length; i++)
+		{
+			var history = oldUrlHistory[i];
+			
+			if(history.url != url)
+			{
+				newURLHistory.push(history);
+			}
+		}
+		
+		localStorage["urlHistory"] = JSON.stringify(newURLHistory);
 	}
 }
 
