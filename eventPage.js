@@ -47,7 +47,7 @@ function checkForMatchingURL(limitList, urlToMatch)
 	{
 		var splitUrl = limitList[i].split(',');
 		
-		if(splitUrl[0].indexOf(urlToMatch) != -1)
+		if(urlToMatch.indexOf(splitUrl[0]) !== -1)
 		{
 			urlParams = splitUrl;
 			break;
