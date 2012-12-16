@@ -47,7 +47,7 @@ function checkForMatchingURL(limitList, urlToMatch)
 	{
 		var splitUrl = limitList[i].split(',');
 		
-		if(splitUrl[0] == urlToMatch)
+		if(splitUrl[0].indexOf(urlToMatch) != -1)
 		{
 			urlParams = splitUrl;
 			break;
@@ -78,6 +78,12 @@ function checkURLLimit(urlLimitValues){
 		if((timeDiffMinutes < timeLimitMinutes) && history.timesVisited >= parseInt(urlLimitValues[1]))
 		{
 			limitReached = true;
+		}
+		if(timeDiffMinutes > timeLimitMinutes)
+		{
+			history.timesVisited = 0;
+			urlHistory[index] = history;
+			localStorage["urlHistory"] = JSON.stringify(urlHistory);
 		}
 	}
 	
