@@ -30,7 +30,7 @@ function limit(urlString, tabID)
 				{
 					var updateProp = new Object();
 	
-					updateProp.url = "error.html";
+					updateProp.url = "../view/error.html";
 
 					chrome.tabs.update(tabID, updateProp, function(){ });
 				}
