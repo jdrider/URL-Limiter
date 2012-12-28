@@ -8,6 +8,8 @@ URL Limiter is a Google Chrome extension that limits the number of times that a 
 
 The browser is redirected to an error page if a URL is visited more times than allowed.
 
+Currently, all data is only stored locally and is not synced with the user account.
+
 Usage
 -----
 
