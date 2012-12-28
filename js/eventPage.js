@@ -5,6 +5,8 @@ chrome.tabs.onUpdated.addListener(
 	}
 );
 
+var storage_local = chrome.storage.local;
+
 /*
 * Logic to see if the URL needs to be limited.
 */
@@ -12,30 +14,30 @@ function limit(urlString, tabID)
 {
 	if(urlString != undefined)
 	{
-		var urls = localStorage['urlLimits'];
-	
-		if(urls != undefined){
-	
-			var urlList = JSON.parse(urls);
+		storage_local.get('urlLimits',
+			function(items){
+				if(items.urlLimits != undefined){
 		
-			var urlMatch = checkForMatchingURL(urlList,urlString);
+					var urlMatch = checkForMatchingURL(items.urlLimits,urlString);
 			
-			if(urlMatch.length > 0)
-			{
-				updateURLHistory(urlMatch);
+					if(urlMatch.length > 0)
+					{
+						updateURLHistory(urlMatch);
 				
-				var limitReached = checkURLLimit(urlMatch);
+						var limitReached = checkURLLimit(urlMatch);
 			
-				if(limitReached)
-				{
-					var updateProp = new Object();
+						if(limitReached)
+						{
+							var updateProp = new Object();
 	
-					updateProp.url = "../view/error.html";
+							updateProp.url = "../view/error.html";
 
-					chrome.tabs.update(tabID, updateProp, function(){ });
+							chrome.tabs.update(tabID, updateProp, function(){ });
+						}
+					}
 				}
 			}
-		}
+		);
 	}
 }
 
@@ -45,11 +47,11 @@ function checkForMatchingURL(limitList, urlToMatch)
 	
 	for(var i = 0; i < limitList.length; i++)
 	{
-		var splitUrl = limitList[i].split(',');
+		var url = limitList[i].url;
 		
-		if(urlToMatch.indexOf(splitUrl[0]) !== -1)
+		if(urlToMatch.indexOf(url) !== -1)
 		{
-			urlParams = splitUrl;
+			urlParams = url;
 			break;
 		}
 	
@@ -58,57 +60,79 @@ function checkForMatchingURL(limitList, urlToMatch)
 	return urlParams;
 }
 
-function checkURLLimit(urlLimitValues){
-	var urlHistory = getURLHistory();
+function checkURLLimit(urlToLimit){
+	
+	var urlHistory;
+	var urlLimits;
+	
+	storage_local.get(["urlHistory", "urlLimits"],
+		function(items){
+			urlHistory = items.urlHistory;
+			urlLimits = items.urlLimits;
+		}
+	);
 	
 	var limitReached = false;
 	
-	if(urlHistory != undefined)
+	if(urlHistory != undefined && urlLimits != undefined)
 	{
-		var index = findURLIndex(urlLimitValues[0], urlHistory);
+		var historyIndex = findURLIndex(urlToLimit, urlHistory);
 		
-		var urlHistoryObj = urlHistory[index];
+		var limitIndex = findURLIndex(urlToLimit, urlLimits);
 		
-		var history = new URL_History(urlHistoryObj.url, new Date(urlHistoryObj.firstVisitDate), new Date(urlHistoryObj.lastVisitDate), parseInt(urlHistoryObj.timesVisited));
+		var urlHistoryObj = urlHistory[historyIndex];
 		
-		var timeLimitMinutes = getTimeLimitMinutes(urlLimitValues[2]);
+		var urlLimitObj = urlLimits[limitIndex];
 		
-		var timeDiffMinutes = Math.round((history.lastVisitDate - history.firstVisitDate)/60000);
+		var history = new URL_History(urlHistoryObj.url, urlHistoryObj.firstVisitDate, urlHistoryObj.lastVisitDate, parseInt(urlHistoryObj.timesVisited));
 		
-		if((timeDiffMinutes < timeLimitMinutes) && history.timesVisited >= parseInt(urlLimitValues[1]))
+		var timeLimitMinutes = getTimeLimitMinutes(urlLimitObj.timeLimit);
+		
+		var timeDiffMinutes = Math.round((new Date(history.lastVisitDate) - new Date(history.firstVisitDate))/60000);
+		
+		if((timeDiffMinutes < timeLimitMinutes) && history.timesVisited >= parseInt(urlLimitObj.limit))
 		{
 			limitReached = true;
 		}
 		if(timeDiffMinutes > timeLimitMinutes)
 		{
 			history.timesVisited = 0;
-			urlHistory[index] = history;
-			localStorage["urlHistory"] = JSON.stringify(urlHistory);
+			urlHistory[historyIndex] = history;
+			storage_local.set({"urlHistory" : urlHistory});
 		}
 	}
 	
 	return limitReached;
 }
 
-function updateURLHistory(urlLimitValues){
+function updateURLHistory(urlToLimit){
 	
-	var urlHistory = getURLHistory();
+	storage_local.get("urlHistory", 
+		function(items){
 	
-	var urlIndex = findURLIndex(urlLimitValues[0], urlHistory);
+			var urlHistory = new Array();
+			
+			if(items.urlHistory != undefined){
+				urlHistory = items.urlHistory;
+			}
+			
+			var urlIndex = findURLIndex(urlToLimit, urlHistory);
 	
-	if(urlIndex >= 0){
-		var urlHistoryItem = urlHistory[urlIndex];
-		var urlHistoryObj = new URL_History(urlHistoryItem.url, new Date(urlHistoryItem.firstVisitDate), new Date(urlHistoryItem.lastVistDate), urlHistoryItem.timesVisited);
+			if(urlIndex >= 0){
+				var urlHistoryItem = urlHistory[urlIndex];
+				var urlHistoryObj = new URL_History(urlHistoryItem.url, urlHistoryItem.firstVisitDate, urlHistoryItem.lastVistDate, urlHistoryItem.timesVisited);
 		
-		urlHistoryObj.updateLastVisit();
+				urlHistoryObj.updateLastVisit();
 		
-		urlHistory[urlIndex] = urlHistoryObj;
-	}
-	else{
-		urlHistory.push(new URL_History(urlLimitValues[0], new Date(), new Date(), 1));
-	}
+				urlHistory[urlIndex] = urlHistoryObj;
+			}
+			else{
+				urlHistory.push(new URL_History(urlToLimit, new Date(), new Date(), 1));
+			}
 	
-	localStorage["urlHistory"] = JSON.stringify(urlHistory);
+			storage_local.set({"urlHistory" : urlHistory});
+		}
+	);
 }
 
 function findURLIndex(urlString, urlHistoryArray){
@@ -126,6 +150,9 @@ function findURLIndex(urlString, urlHistoryArray){
 	return index;
 }
 
+/*
+  Returns the number of minutes in the time period.
+*/
 function getTimeLimitMinutes(limitPeriod)
 {
 	var timePeriodInMinutes = 1;
@@ -147,34 +174,23 @@ function getTimeLimitMinutes(limitPeriod)
 	return timePeriodInMinutes;
 }
 
-function getURLHistory()
-{
-	var localHistory = localStorage["urlHistory"];
-	
-	var urlHistory;
-	
-	if(localHistory == undefined)
-	{
-		urlHistory = new Array();
-	}
-	else
-	{
-		urlHistory = JSON.parse(localHistory);
-	}
-	
-	return urlHistory;
-}
-
 /* URL_History Object */
-function URL_History(urlString, firstVisitDate, lastVisitDate, timesVisited)
+function URL_History(urlString, firstVisitedDate, lastVisitedDate, timesVisited)
 {
 	this.url = urlString;
-	this.firstVisitDate = firstVisitDate;
-	this.lastVisitDate = lastVisitDate;
+	this.firstVisitDate = firstVisitedDate.toString();
+	
+	if(lastVisitedDate != undefined){
+		this.lastVisitDate = lastVisitedDate.toString();
+	}
+	else{
+		this.lastVisitDate = new Date().toString();
+	}
+	
 	this.timesVisited = timesVisited;
 	
 	this.updateLastVisit = function(){
-		this.lastVisitDate = new Date();
+		this.lastVisitDate = new Date().toString();
 		this.timesVisited++;
 	}
 	

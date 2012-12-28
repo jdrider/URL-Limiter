@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
   setupPage();
 });
 
+var storage_local = chrome.storage.local;
+
 /*
 * Setup the page
 */
@@ -68,59 +70,56 @@ function removeURL(elementToRemove){
 }
 
 function removeURLHistory(url)
-{
-	var localHistory = localStorage["urlHistory"];
-	
-	if(localHistory != undefined)
-	{
-		var oldUrlHistory = JSON.parse(localHistory);
+{	
+	storage_local.get('urlHistory', 
+		function(items){
+			if(items.urlHistory != undefined)
+			{		
+				var newURLHistory = new Array();
 		
-		var newURLHistory = new Array();
-		
-		for(var i=0; i < oldUrlHistory.length; i++)
-		{
-			var history = oldUrlHistory[i];
+				for(var i=0; i < items.urlHistory.length; i++)
+				{
+					var history = items.urlHistory[i];
 			
-			if(history.url != url)
-			{
-				newURLHistory.push(history);
+					if(history.url != url)
+					{
+						newURLHistory.push(history);
+					}
+				}
+		
+				storage_local.set({"urlHistory" : newURLHistory});
 			}
 		}
-		
-		localStorage["urlHistory"] = JSON.stringify(newURLHistory);
-	}
+	);
 }
 
 /*
 * Load the saved URLs from localStorage
 */
 function loadURLs(){
-	var urls = localStorage['urlLimits'];
-	
-	if(urls != undefined){
-	
-		var urlList = JSON.parse(urls);
-		
-		if(urlList != undefined){
+	storage_local.get('urlLimits', 
+		function(items){
+			if(items.urlLimits != undefined){
 			
-			$("#urlList").empty();
+				$("#urlList").empty();
 			
-			for(var i = 0; i < urlList.length; i++){
+				for(var i = 0; i < items.urlLimits.length; i++){
 				
-				var limitItem = createURL_Limit(urlList[i]);
+					var limitItem = items.urlLimits[i];
 				
-				if(i != 0){
+					if(i != 0){
 						$("#urlList").append('<br/>');
-				}
+					}
 				
-				$("#urlList").append('<div><label>URL</label><input type="text" id="urlInput" value="'+ limitItem.url + '"/>'+
-						             '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1" value="'+ limitItem.limit +'"/>'+
-	                                 '<select id="timeLimit" value="'+ limitItem.timeLimit +'"><option name="Hourly">Hourly</option>'+
-	                                 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>'+
-									 '<button class="removeBtn">Remove</button>');
+					$("#urlList").append('<div><label>URL</label><input type="text" id="urlInput" value="'+ limitItem.url + '"/>'+
+										 '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1" value="'+ limitItem.limit +'"/>'+
+										 '<select id="timeLimit" value="'+ limitItem.timeLimit +'"><option name="Hourly">Hourly</option>'+
+										 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>'+
+										 '<button class="removeBtn">Remove</button>');
+				}
 			}
 		}
-	}
+	);
 }
 
 /*
@@ -138,28 +137,35 @@ function saveURLs(){
 		
 		if(url.length > 0 && limit > 0 && timeLimit.length > 0){
 			var limitObj = new URL_Limit(url, limit, timeLimit);
-			urlList[i] = limitObj.toString();
+			urlList[i] = limitObj;//.toString();
 		}
 	});
 	
 	//Save to local storage if there are elements to save
 	if(urlList.length > 0){
-		localStorage['urlLimits'] = JSON.stringify(urlList);
+		storage_local.set({'urlLimits' : urlList});
 	}
 	//Remove the item if there are no elements to save
-	else if(localStorage['urlLimits'] != undefined){
-		localStorage.removeItem("urlLimits");
+	else{
+		storage_local.get('urlLimits', 
+			function(items){
+				if(items.urlLimits != undefined){
+					storage_local.remove('urlLimits');
+				}
+			}
+		);
 	}
 }
 
 /*
 * Create a URL_Limit object from a comma-separated string of values.
-*/
+*
 function createURL_Limit(valueString){
 	var indValues = valueString.split(",");
 	
 	return new URL_Limit(indValues[0], indValues[1], indValues[2]);
 }
+*/
 
 /** URL Limit Object **/
 function URL_Limit(url, limit, timeLimit){
