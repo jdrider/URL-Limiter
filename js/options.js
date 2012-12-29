@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setupPage();
 });
 
+
 var storage_local = chrome.storage.local;
 
 /*
@@ -28,9 +29,9 @@ function addClickHandlers(){
 		}
 	);
 	//Add click handlers for Remove buttons
-	$(".removeBtn").on("click",
+	$(".removeBtn").live("click",
 		function(event){
-				removeURL($(this).parent());
+			removeURL($(this).parent());
 		}
 	);
 }
