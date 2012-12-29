@@ -113,9 +113,11 @@ function loadURLs(){
 				
 					$("#urlList").append('<div><label>URL</label><input type="text" id="urlInput" value="'+ limitItem.url + '"/>'+
 										 '<label id="numberLabel">Limit</label><input type="number" id="urlLimit" min="1" value="'+ limitItem.limit +'"/>'+
-										 '<select id="timeLimit" value="'+ limitItem.timeLimit +'"><option name="Hourly">Hourly</option>'+
+										 '<select id="timeLimit'+i+'"><option name="Hourly">Hourly</option>'+
 										 '<option name="Daily">Daily</option><option name="Weekly">Weekly</option></select>'+
 										 '<button class="removeBtn">Remove</button>');
+										 
+					$("#timeLimit" + i).val(limitItem.timeLimit);
 				}
 			}
 		}
@@ -133,11 +135,11 @@ function saveURLs(){
 	$("#urlList").children('div').each(function(i){
 		var url = $(this).children("#urlInput").val();
 		var limit = $(this).children("#urlLimit").val();
-		var timeLimit = $(this).children("#timeLimit").val();
+		var timeLimit = $(this).children("select").val();
 		
 		if(url.length > 0 && limit > 0 && timeLimit.length > 0){
 			var limitObj = new URL_Limit(url, limit, timeLimit);
-			urlList[i] = limitObj;//.toString();
+			urlList[i] = limitObj;
 		}
 	});
 	
