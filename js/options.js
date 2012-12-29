@@ -60,14 +60,16 @@ function removeURL(elementToRemove){
 	
 	var url = elementToRemove.children("#urlInput").val();
 	
-	removeURLHistory(url);
-	
 	elementToRemove.remove();
 	
 	//Remove all extra break elements if all url fields have been removed.
 	if($("#urlList").children('div').length == 0){
 		$("#urlList").empty();
 	}
+	
+	removeURLHistory(url);
+	
+	saveURLs();
 }
 
 function removeURLHistory(url)
